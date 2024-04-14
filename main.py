@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pickle 
+import matplotlib.pyplot as plt
 
 # Load the trained model
 model = pickle.load(open('model_diabetes.sav', 'rb'))
@@ -10,9 +11,18 @@ def predict_diabetes(features):
     prediction = model.predict(features)
     return prediction[0]
 
+# Define a function to suggest medication based on diabetes type
+def suggest_medication(diabetes_type):
+    if diabetes_type == "Type 1":
+        return "Suggested medication for Type 1 diabetes: Insulin injections"
+    elif diabetes_type == "Type 2":
+        return "Suggested medication for Type 2 diabetes: Oral medication, diet, and exercise"
+    else:
+        return "No specific medication suggestion."
+
 # Create a Streamlit app
 def main():
-    st.title("Diabetes Prediction App")
+    st.title("Diabetes Prediction and Prescription App")
 
     # Collect user input
     gender = st.radio("Gender:", ["Female", "Male", "Other"])
@@ -58,8 +68,27 @@ def main():
         st.subheader("Prediction:")
         if prediction == 1:
             st.write("The patient is predicted to have diabetes.")
+            diabetes_type = st.selectbox("Diabetes Type:", ["Type 1", "Type 2", "Other"])
+            medication_suggestion = suggest_medication(diabetes_type)
+            st.subheader("Medication Suggestion:")
+            st.write(medication_suggestion)
         else:
             st.write("The patient is predicted to not have diabetes.")
+            diabetes_type = st.selectbox("Diabetes Type:", ["Type 1", "Type 2", "Other"])
+            medication_suggestion = suggest_medication(diabetes_type)
+            st.subheader("Medication Suggestion:")
+            st.write(medication_suggestion)
 
+        # Analytics about the data entered by the user
+        st.subheader("Data Analytics:")
+        st.write("Here are some analytics about the data you entered:")
+        st.write(user_input.describe())
+
+        # Plot a histogram for blood glucose levels
+        st.subheader("Histogram of Blood Glucose Levels:")
+        plt.hist(user_input['blood_glucose_level'], bins=20, color='skyblue', edgecolor='black')
+        plt.xlabel('Blood Glucose Level')
+        plt.ylabel('Frequency')
+        st.pyplot(plt)
 if __name__ == '__main__':
     main()
